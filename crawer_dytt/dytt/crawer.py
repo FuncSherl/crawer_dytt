@@ -5,7 +5,7 @@ Created on Apr 9, 2018
 @author: sherl
 '''
 import urllib,urllib2,re
-import sys  
+import sys,random
 from time import sleep
 
 
@@ -13,11 +13,11 @@ reload(sys)
 sys.setdefaultencoding('utf-8')  
 
 
-url_dir=r'http://www.dytt8.net/'
-imdb_dir=r'http://www.dytt8.net/html/gndy/jddy/20160320/50523.html'
+url_dir=r'http://www.ygdy8.com/'#r'http://www.dytt8.net/'#
+imdb_dir=r'http://www.dytt8.net/html/gndy/jddy/20160320/50523.html'#r'http://www.ygdy8.com/html/gndy/jddy/20160320/50541.html'#
 
 def get_page(url_d, cnt=0):
-    if cnt>5: return ""
+    if cnt>4: return ""
     
     headers = { 'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36' }  
     #headers['Cookie']=r'UM_distinctid=16295165d77b8-066969d905fab7-3a76015a-1fa400-16295165d787e4; 37cs_user=37cs60026302580; 37cs_show=253; CNZZDATA1260535040=169648380-1522918900-http%253A%252F%252Fwww.dytt8.net%252F%7C1523448119; cscpvcouplet4298_fidx=4; cscpvrich5041_fidx=4'
@@ -27,7 +27,7 @@ def get_page(url_d, cnt=0):
         response = urllib2.urlopen(req)
         tepstr=response.read()
     except:
-        sleep(10)
+        sleep(2**(cnt+1))
         print url_d,'get except!!!now retrying '
         return get_page(url_d,cnt+1)
     
@@ -97,7 +97,7 @@ def parse_imdblinks_page(urld):
 
     if nextlink:
         nextlink=nextlink.group(1)
-        sleep(4)
+        sleep(8)
         nextlink=urld.rsplit('/',1)[0]+'/'+nextlink
         print 'going to next link:',nextlink
         tepp=parse_imdblinks_page(nextlink)
@@ -123,24 +123,36 @@ def startwith_index(url_dir, txtdir):
             with open(txtdir,'a+') as f:
                 f.write(links[0]+'\n')
         
-def startwith_imdb(url_dir, txtdir):
-    print 'startwith_imdb:',url_dir
-    downlinks=parse_imdblinks_page(url_dir)
-    print downlinks
-    if not downlinks:return None
-    
+def download_linklist(downlinks, txtdir):  
+    fail=[]    
     for ind,i in enumerate(downlinks):
         #print ind,parse_download_page(i[0]),i[1].decode('utf-8','ignore')
         title,links=parse_download_page(i)
         print ind,links,title
-        sleep(8)
+        sleep(4)
         if links and len(links)>0:
             with open(txtdir,'a+') as f:
                 f.write(links[0]+'\n')
+        else:
+            fail.append(i)
+    print 'download linklist get fails:',len(fail)
+    return fail
+
+def startwith_imdb(url_dir, txtdir):
+    print 'startwith_imdb:',url_dir
+    downlinks=parse_imdblinks_page(url_dir)
+    
+    if not downlinks:return None
+    print 'get imdb movies:',len(downlinks),'\n',downlinks
+    
+    while(len(downlinks)>0):
+        print 'iterstart:',len(downlinks)
+        downlinks=download_linklist(downlinks,txtdir)
+    
     
 
 if __name__ == '__main__':
-    startwith_imdb(imdb_dir,'imdb_urls.txt')
+    startwith_imdb(imdb_dir,'imdb_urls3.txt')
     
     
     
