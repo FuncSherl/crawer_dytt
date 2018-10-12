@@ -27,7 +27,7 @@ def get_page(url_d, cnt=0):
         tepstr=response.read()
     except:
         sleep(2**(cnt+1))#2^(cnt+1)
-        print url_d,'get except!!!now retrying '
+        print (url_d,'get except!!!now retrying ')
         return get_page(url_d,cnt+1)
     
     else:
@@ -51,12 +51,12 @@ def get_video(urld):
     with open(name, "wb") as code:
         code.write(data)
         
-    print 'done:',urld
+    print ('done:',urld)
 
 
 
 if __name__ == '__main__':
-    print get_page(urls[0])
+    print (get_page(urls[0]))
     pass
 
 
